@@ -191,17 +191,116 @@ CellularAutomataGpu.prototype.finalize = function () {
         this.backend.execute(this.rules[i]);
     }
 
-    console.log(this.backend.read());
+    var data = this.backend.read();
+
+    for (var i = 0; i < data.length; i++) {
+        var x = i % this.shape[0],
+            y = Math.floor(i / this.shape[0]);
+
+        this.array.set(x,y,data[i]);
+    }
 
     this.rules = [];
 
     return this;
 };
 
-module.exports = function() {
-    var cagpu = new CellularAutomataGpu([48, 30], 0);
+var CellularAutomataCpu = require('cellular-automata');
 
-    cagpu.setOutOfBoundValue(1);
-    cagpu.apply('E2,7,8/3,8', 124);
-    cagpu.finalize();
+var displayNDarray = function (array, shape) {
+    var string = '\n';
+
+    for (var y = 0; y < shape[1]; y++) {
+        for (var x = 0; x < shape[0]; x++) {
+            string+= array.get(x,y) ? '#' : ' ';
+        }
+
+        string+= '\n';
+    }
+
+    console.log(string);
+};
+
+module.exports = function() {
+    function test(shape, rule, iterations) {
+        console.log('----- Width ' + shape[0] + ' Height ' + shape[0] + ' Iterations ' + iterations + 'x Rule "' + rule + '" -----');
+
+
+
+        var cagpu = new CellularAutomataGpu(shape, 0);
+
+        var gputime = Date.now();
+        cagpu.setOutOfBoundValue(1);
+        cagpu.apply(rule, iterations);
+        cagpu.finalize();
+
+        gputime = Date.now() - gputime;
+
+        console.log('GPU: ' + (gputime/1000).toPrecision(4) + 's');
+
+
+
+        var cacpu = new CellularAutomataCpu(shape, 0);
+
+        var cputime = Date.now();
+        cacpu.setOutOfBoundValue(1);
+        cacpu.apply(rule, iterations);
+
+        cputime = Date.now() - cputime;
+
+        console.log('CPU: ' + (cputime/1000).toPrecision(4) + 's');
+    };
+
+    setTimeout(function() {
+        test([100, 100], '23/3', 10);
+        test([100, 100], '23/3', 100);
+        test([100, 100], '23/3', 1000);
+
+        test([200, 200], '23/3', 10);
+        test([200, 200], '23/3', 100);
+        test([200, 200], '23/3', 1000);
+
+        test([400, 400], '23/3', 10);
+        test([400, 400], '23/3', 100);
+        test([400, 400], '23/3', 1000);
+
+        test([800, 800], '23/3', 10);
+        test([800, 800], '23/3', 100);
+        test([800, 800], '23/3', 1000);
+
+        test([800, 800], '23/3 V', 10);
+        test([800, 800], '23/3 V', 100);
+        test([800, 800], '23/3 V', 1000);
+
+        /*
+        var gputime = Date.now();
+
+        var cagpu = new CellularAutomataGpu([480, 300], 0);
+
+        cagpu.setOutOfBoundValue(1);
+        cagpu.apply('E2,7,8/3,8', 500);
+        cagpu.finalize();
+
+        gputime = Date.now() - gputime;
+
+        //displayNDarray(cagpu.array, cagpu.shape);
+
+        console.log('-----');
+
+
+        var cputime = Date.now();
+
+        var cacpu = new CellularAutomataCpu([480, 300], 0);
+
+        cacpu.setOutOfBoundValue(1);
+        cacpu.apply('E2,7,8/3,8', 500);
+
+        cputime = Date.now() - cputime;
+
+        //displayNDarray(cacpu.array, cacpu.shape);
+
+        console.log('CPU: ' + cputime + 'ms\nGPU: ' + gputime + 'ms');
+        */
+    }, 2500);
+
 };
