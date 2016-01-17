@@ -1,0 +1,21 @@
+{
+  "name": "cellular-automata-gpu-playground",
+  "version": "0.1.0",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "browserify index.js -d --s main -u crypto > build/main.js",
+    "build-prod": "browserify index.js --s main -u crypto | uglifyjs > build/main.js",
+    "test": "koko -o index.html"
+  },
+  "author": "Kevin Chapelier",
+  "license": "MIT",
+  "dependencies": {
+    "cellular-automata-rule-parser": "^1.1.0",
+    "moore": "0.0.2",
+    "ndarray": "^1.0.18",
+    "unconventional-neighbours": "^1.0.0",
+    "von-neumann": "^1.0.0"
+  }
+}
