@@ -196,7 +196,7 @@ CellularAutomataGpu.prototype.finalize = function () {
 
         var data = this.backend.read();
 
-        for (var i = 0; i < data.length; i++) {
+        for (i = 0; i < data.length; i++) {
             var x = i % this.shape[0],
                 y = Math.floor(i / this.shape[0]);
 
@@ -212,11 +212,13 @@ CellularAutomataGpu.prototype.finalize = function () {
 var CellularAutomataCpu = require('cellular-automata');
 
 var displayNDarray = function (array, shape) {
-    var string = '\n';
+    var string = '\n',
+        x, y, v;
 
-    for (var y = 0; y < shape[1]; y++) {
-        for (var x = 0; x < shape[0]; x++) {
-            string+= array.get(x,y) ? '#' : '.';
+    for (y = 0; y < shape[1]; y++) {
+        for (x = 0; x < shape[0]; x++) {
+            v = array.get(x,y);
+            string+= v ? '0' + v.toString(10) : '..';
         }
 
         string+= '\n';
@@ -224,8 +226,6 @@ var displayNDarray = function (array, shape) {
 
     console.log(string);
 };
-
-//TODO write to GPU texture on finalize
 
 module.exports = function() {
     function test(shape, rule, iterations) {
@@ -282,11 +282,11 @@ module.exports = function() {
         test([800, 800], '23/3 V', 1000);
         */
 
-        var cagpu = new CellularAutomataGpu([20,20], 0);
+        var cagpu = new CellularAutomataGpu([48,30], 0);
 
-        cagpu.array.set(2,0,1);
-        cagpu.array.set(19,19,1);
-        cagpu.apply('E 0..8/', 1);
+        cagpu.setOutOfBoundValue(1);
+        cagpu.apply('E 2,7,8/3,8', 15);
+        cagpu.apply('LUKY 3323', 1);
         cagpu.finalize();
 
         displayNDarray(cagpu.array, cagpu.shape);
@@ -320,6 +320,6 @@ module.exports = function() {
 
         console.log('CPU: ' + cputime + 'ms\nGPU: ' + gputime + 'ms');
         */
-    }, 500);
+    }, 10);
 
 };
