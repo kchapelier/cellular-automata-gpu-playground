@@ -282,12 +282,11 @@ module.exports = function() {
         test([800, 800], '23/3 V', 1000);
         */
 
-        var cagpu = new CellularAutomataGpu([48,30], 0);
+        var cagpu = new CellularAutomataGpu([30,30], 0);
 
-        cagpu.setOutOfBoundValue(1);
-        cagpu.apply('E 2,7,8/3,8', 15);
-        cagpu.apply('LUKY 3323', 1);
-        cagpu.apply('E 2,7,8/3,8', 3);
+        cagpu.array.set(15,15,1);
+        cagpu.array.set(14,15,1);
+        cagpu.apply('NLUKY 12299', 5);
         cagpu.finalize();
 
         displayNDarray(cagpu.array, cagpu.shape);
