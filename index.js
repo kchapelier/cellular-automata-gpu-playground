@@ -287,6 +287,7 @@ module.exports = function() {
         cagpu.setOutOfBoundValue(1);
         cagpu.apply('E 2,7,8/3,8', 15);
         cagpu.apply('LUKY 3323', 1);
+        cagpu.apply('E 2,7,8/3,8', 3);
         cagpu.finalize();
 
         displayNDarray(cagpu.array, cagpu.shape);
