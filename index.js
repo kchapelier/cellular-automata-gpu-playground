@@ -187,20 +187,24 @@ CellularAutomataGpu.prototype.apply = function (rule, iteration) {
  * @returns {CellularAutomataGpu} CellularAutomataGpu instance for method chaining.
  */
 CellularAutomataGpu.prototype.finalize = function () {
-    for (var i = 0; i < this.rules.length; i++) {
-        this.backend.execute(this.rules[i]);
+    if (this.rules.length) {
+        this.backend.write(this.array, this.shape);
+
+        for (var i = 0; i < this.rules.length; i++) {
+            this.backend.execute(this.rules[i]);
+        }
+
+        var data = this.backend.read();
+
+        for (var i = 0; i < data.length; i++) {
+            var x = i % this.shape[0],
+                y = Math.floor(i / this.shape[0]);
+
+            this.array.set(x, y, data[i]);
+        }
+
+        this.rules = [];
     }
-
-    var data = this.backend.read();
-
-    for (var i = 0; i < data.length; i++) {
-        var x = i % this.shape[0],
-            y = Math.floor(i / this.shape[0]);
-
-        this.array.set(x,y,data[i]);
-    }
-
-    this.rules = [];
 
     return this;
 };
@@ -212,7 +216,7 @@ var displayNDarray = function (array, shape) {
 
     for (var y = 0; y < shape[1]; y++) {
         for (var x = 0; x < shape[0]; x++) {
-            string+= array.get(x,y) ? '#' : ' ';
+            string+= array.get(x,y) ? '#' : '.';
         }
 
         string+= '\n';
@@ -220,6 +224,8 @@ var displayNDarray = function (array, shape) {
 
     console.log(string);
 };
+
+//TODO write to GPU texture on finalize
 
 module.exports = function() {
     function test(shape, rule, iterations) {
@@ -252,18 +258,21 @@ module.exports = function() {
     };
 
     setTimeout(function() {
-        test([100, 100], '23/3', 10);
-        test([100, 100], '23/3', 100);
-        test([100, 100], '23/3', 1000);
+        //test([100, 100], '23/3', 10);
+        //test([100, 100], '23/3', 100);
+        //test([100, 100], '23/3', 1000);
 
-        test([200, 200], '23/3', 10);
-        test([200, 200], '23/3', 100);
-        test([200, 200], '23/3', 1000);
+        //test([200, 200], '23/3', 10);
+        //test([200, 200], '23/3', 100);
+        //test([200, 200], '23/3', 1000);
 
+        /*
         test([400, 400], '23/3', 10);
         test([400, 400], '23/3', 100);
         test([400, 400], '23/3', 1000);
+        */
 
+/*
         test([800, 800], '23/3', 10);
         test([800, 800], '23/3', 100);
         test([800, 800], '23/3', 1000);
@@ -271,6 +280,16 @@ module.exports = function() {
         test([800, 800], '23/3 V', 10);
         test([800, 800], '23/3 V', 100);
         test([800, 800], '23/3 V', 1000);
+        */
+
+        var cagpu = new CellularAutomataGpu([20,20], 0);
+
+        cagpu.array.set(2,0,1);
+        cagpu.array.set(19,19,1);
+        cagpu.apply('E 0..8/', 1);
+        cagpu.finalize();
+
+        displayNDarray(cagpu.array, cagpu.shape);
 
         /*
         var gputime = Date.now();
@@ -301,6 +320,6 @@ module.exports = function() {
 
         console.log('CPU: ' + cputime + 'ms\nGPU: ' + gputime + 'ms');
         */
-    }, 2500);
+    }, 500);
 
 };
