@@ -282,14 +282,26 @@ module.exports = function() {
         test([800, 800], '23/3 V', 1000);
         */
 
-        var cagpu = new CellularAutomataGpu([30,30], 0);
+        var cagpu = new CellularAutomataGpu([100,100], 0);
+
+        cagpu.setOutOfBoundValue('wrap');
+        cagpu.fillWithDistribution([[5,1], [4,1], [3,1], [2,1], [1,1], [0, 1]]);
 
         cagpu.array.set(15,15,1);
         cagpu.array.set(14,15,1);
-        cagpu.apply('NLUKY 12299', 5);
+        cagpu.array.set(16,15,1);
+        cagpu.apply('R2/T2/C6/NN', 30);
         cagpu.finalize();
 
         displayNDarray(cagpu.array, cagpu.shape);
+
+        var cacpu = new CellularAutomataCpu([30,30], 0);
+
+        cacpu.array.set(15,15,1);
+        cacpu.array.set(14,15,1);
+        cacpu.apply('NLUKY 12299', 5);
+
+        displayNDarray(cacpu.array, cacpu.shape);
 
         /*
         var gputime = Date.now();
