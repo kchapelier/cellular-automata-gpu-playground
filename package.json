@@ -13,7 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "cellular-automata": "^1.0.0",
-    "cellular-automata-rule-parser": "^1.1.0",
+    "cellular-automata-rule-parser": "^2.0.0",
     "moore": "0.0.2",
     "ndarray": "^1.0.18",
     "unconventional-neighbours": "^1.0.0",
