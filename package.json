@@ -5,8 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "browserify index.js -d --s main -u crypto -u gl > build/main.js",
-    "build-prod": "browserify index.js --s main -u crypto -u gl | uglifyjs > build/main.js",
+    "build": "browserify main.js -d --s main -u crypto -u gl > build/main.js",
+    "build-prod": "browserify main.js --s main -u crypto -u gl | uglifyjs > build/main.js",
     "test": "koko -o index.html"
   },
   "author": "Kevin Chapelier",

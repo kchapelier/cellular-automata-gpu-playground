@@ -1,9 +1,8 @@
 var utils = require('./lib/utils'),
     parser = require('cellular-automata-rule-parser'),
     generateShaders = require('./lib/cellular-automata-glsl'),
-    GpuBackend = require('./lib/cellular-automata-gpu-backend');
-
-var moore = require('moore'),
+    GpuBackend = require('./lib/cellular-automata-gpu-backend'),
+    moore = require('moore'),
     vonNeumann = require('von-neumann'),
     unconventionalNeighbours = require('unconventional-neighbours');
 
@@ -209,129 +208,5 @@ CellularAutomataGpu.prototype.finalize = function () {
     return this;
 };
 
-var CellularAutomataCpu = require('cellular-automata');
+module.exports = CellularAutomataGpu;
 
-var displayNDarray = function (array, shape) {
-    var string = '\n',
-        x, y, v;
-
-    for (y = 0; y < shape[1]; y++) {
-        for (x = 0; x < shape[0]; x++) {
-            v = array.get(x,y);
-            string+= v ? '0' + v.toString(10) : '..';
-        }
-
-        string+= '\n';
-    }
-
-    console.log(string);
-};
-
-module.exports = function() {
-    function test(shape, rule, iterations) {
-        console.log('----- Width ' + shape[0] + ' Height ' + shape[0] + ' Iterations ' + iterations + 'x Rule "' + rule + '" -----');
-
-
-
-        var cagpu = new CellularAutomataGpu(shape, 0);
-
-        var gputime = Date.now();
-        cagpu.setOutOfBoundValue(1);
-        cagpu.apply(rule, iterations);
-        cagpu.finalize();
-
-        gputime = Date.now() - gputime;
-
-        console.log('GPU: ' + (gputime/1000).toPrecision(4) + 's');
-
-
-
-        var cacpu = new CellularAutomataCpu(shape, 0);
-
-        var cputime = Date.now();
-        cacpu.setOutOfBoundValue(1);
-        cacpu.apply(rule, iterations);
-
-        cputime = Date.now() - cputime;
-
-        console.log('CPU: ' + (cputime/1000).toPrecision(4) + 's');
-    };
-
-    setTimeout(function() {
-        //test([100, 100], '23/3', 10);
-        //test([100, 100], '23/3', 100);
-        //test([100, 100], '23/3', 1000);
-
-        //test([200, 200], '23/3', 10);
-        //test([200, 200], '23/3', 100);
-        //test([200, 200], '23/3', 1000);
-
-        /*
-        test([400, 400], '23/3', 10);
-        test([400, 400], '23/3', 100);
-        test([400, 400], '23/3', 1000);
-        */
-
-/*
-        test([800, 800], '23/3', 10);
-        test([800, 800], '23/3', 100);
-        test([800, 800], '23/3', 1000);
-
-        test([800, 800], '23/3 V', 10);
-        test([800, 800], '23/3 V', 100);
-        test([800, 800], '23/3 V', 1000);
-        */
-
-        var cagpu = new CellularAutomataGpu([100,100], 0);
-
-        cagpu.setOutOfBoundValue('wrap');
-        cagpu.fillWithDistribution([[5,1], [4,1], [3,1], [2,1], [1,1], [0, 1]]);
-
-        cagpu.array.set(15,15,1);
-        cagpu.array.set(14,15,1);
-        cagpu.array.set(16,15,1);
-        cagpu.apply('R2/T2/C6/NN', 30);
-        cagpu.finalize();
-
-        displayNDarray(cagpu.array, cagpu.shape);
-
-        var cacpu = new CellularAutomataCpu([30,30], 0);
-
-        cacpu.array.set(15,15,1);
-        cacpu.array.set(14,15,1);
-        cacpu.apply('NLUKY 12299', 5);
-
-        displayNDarray(cacpu.array, cacpu.shape);
-
-        /*
-        var gputime = Date.now();
-
-        var cagpu = new CellularAutomataGpu([480, 300], 0);
-
-        cagpu.setOutOfBoundValue(1);
-        cagpu.apply('E2,7,8/3,8', 500);
-        cagpu.finalize();
-
-        gputime = Date.now() - gputime;
-
-        //displayNDarray(cagpu.array, cagpu.shape);
-
-        console.log('-----');
-
-
-        var cputime = Date.now();
-
-        var cacpu = new CellularAutomataCpu([480, 300], 0);
-
-        cacpu.setOutOfBoundValue(1);
-        cacpu.apply('E2,7,8/3,8', 500);
-
-        cputime = Date.now() - cputime;
-
-        //displayNDarray(cacpu.array, cacpu.shape);
-
-        console.log('CPU: ' + cputime + 'ms\nGPU: ' + gputime + 'ms');
-        */
-    }, 10);
-
-};
