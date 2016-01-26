@@ -187,20 +187,13 @@ CellularAutomataGpu.prototype.apply = function (rule, iteration) {
  */
 CellularAutomataGpu.prototype.finalize = function () {
     if (this.rules.length) {
-        this.backend.write(this.array, this.shape);
+        this.backend.write(this.array);
 
         for (var i = 0; i < this.rules.length; i++) {
             this.backend.execute(this.rules[i]);
         }
 
-        var data = this.backend.read();
-
-        for (i = 0; i < data.length; i++) {
-            var x = i % this.shape[0],
-                y = Math.floor(i / this.shape[0]);
-
-            this.array.set(x, y, data[i]);
-        }
+        this.backend.read(this.array);
 
         this.rules = [];
     }

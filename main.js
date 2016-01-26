@@ -61,11 +61,13 @@ function test(shape, rule, iterations) {
 
 var cagpu = new CellularAutomataGpu([48,30], 0);
 
+var gputime = Date.now();
 cagpu.setOutOfBoundValue(1);
-cagpu.apply('23/3', 100);
-cagpu.apply('123/245678', 10);
-cagpu.apply('23/3', 100);
+cagpu.apply('01368/01427', 20);
+cagpu.apply('012368/0127', 20);
 cagpu.finalize();
+gputime = Date.now() - gputime;
+console.log('--GPU: ' + (gputime/1000).toPrecision(3) + 's');
 
 displayNDarray(cagpu.array, cagpu.shape);
 
