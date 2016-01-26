@@ -46,17 +46,27 @@ function test(shape, rule, iterations) {
     console.log('CPU: ' + (cputime/1000).toPrecision(4) + 's');
 }
 
-test([100, 100], '23/3', 10);
-test([100, 100], '23/3', 100);
-test([100, 100], '23/3', 1000);
 
-test([200, 200], '23/3', 10);
-test([200, 200], '23/3', 100);
-test([200, 200], '23/3', 1000);
+//test([100, 100], '23/3', 10);
+//test([100, 100], '23/3', 100);
+//test([100, 100], '23/3', 1000);
 
-test([400, 400], '23/3', 10);
-test([400, 400], '23/3', 100);
-test([400, 400], '23/3', 1000);
+//test([200, 200], '23/3', 10);
+//test([200, 200], '23/3', 100);
+//test([200, 200], '23/3', 1000);
 
+//test([400, 400], '23/3', 10);
+//test([400, 400], '23/3', 100);
+//test([400, 400], '23/3', 1000);
+
+var cagpu = new CellularAutomataGpu([48,30], 0);
+
+cagpu.setOutOfBoundValue(1);
+cagpu.apply('23/3', 100);
+cagpu.apply('123/245678', 10);
+cagpu.apply('23/3', 100);
+cagpu.finalize();
+
+displayNDarray(cagpu.array, cagpu.shape);
 
 module.exports = function() {};
