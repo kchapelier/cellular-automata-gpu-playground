@@ -3,16 +3,36 @@ var CellularAutomataGpu = require('./'),
 
 var displayNDarray = function (array, shape) {
     var string = '\n',
-        x, y, v;
+        x, y, z, v;
 
-    for (y = 0; y < shape[1]; y++) {
-        for (x = 0; x < shape[0]; x++) {
-            v = array.get(x,y);
-            string+= v ? '0' + v.toString(10) : '..';
+    if (shape.length == 2) {
+        for (y = 0; y < shape[1]; y++) {
+            for (x = 0; x < shape[0]; x++) {
+                v = array.get(x,y);
+                string+= v ? '0' + v.toString(10) : '..';
+            }
+
+            string+= '\n';
         }
+    } else {
+        for (z = 0; z < shape[2]; z++) {
+            if (z) {
+                string += ' ---- \n';
+            }
 
-        string+= '\n';
+            for (y = 0; y < shape[1]; y++) {
+                for (x = 0; x < shape[0]; x++) {
+                    v = array.get(x, y, z);
+                    string += v ? '0' + v.toString(10) : '..';
+                }
+
+                string += '\n';
+            }
+
+
+        }
     }
+
 
     console.log(string);
 };
@@ -59,6 +79,7 @@ function test(shape, rule, iterations) {
 //test([400, 400], '23/3', 100);
 //test([400, 400], '23/3', 1000);
 
+/*
 var cagpu = new CellularAutomataGpu([48,30], 0);
 
 var gputime = Date.now();
@@ -68,6 +89,41 @@ cagpu.apply('012368/0127', 20);
 cagpu.finalize();
 gputime = Date.now() - gputime;
 console.log('--GPU: ' + (gputime/1000).toPrecision(3) + 's');
+
+displayNDarray(cagpu.array, cagpu.shape);
+*/
+
+/*
+var cagpu = new CellularAutomataGpu([3,3], 0);
+cagpu.array.set(0, 0, 1);
+
+displayNDarray(cagpu.array, cagpu.shape);
+
+cagpu.apply('E / 0..26', 1);
+cagpu.finalize();
+
+displayNDarray(cagpu.array, cagpu.shape);
+*/
+
+var cagpu = new CellularAutomataGpu([3,3,3], 0);
+cagpu.array.set(1, 1, 0, 1);
+cagpu.array.set(1, 1, 2, 1);
+cagpu.array.set(1, 1, 1, 1);
+cagpu.array.set(1, 0, 1, 1);
+cagpu.array.set(1, 2, 1, 1);
+cagpu.array.set(0, 1, 1, 1);
+cagpu.array.set(2, 1, 1, 1);
+
+cagpu.apply('E 0..26 / von-neumann', 1);
+cagpu.finalize();
+
+displayNDarray(cagpu.array, cagpu.shape);
+
+var cagpu = new CellularAutomataGpu([3,3,3], 0);
+cagpu.array.set(1, 1, 1, 1);
+
+cagpu.apply('E 0..26 / 1 von-neumann', 1);
+cagpu.finalize();
 
 displayNDarray(cagpu.array, cagpu.shape);
 

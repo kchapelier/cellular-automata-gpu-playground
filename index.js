@@ -1,6 +1,7 @@
 var utils = require('./lib/utils'),
     parser = require('cellular-automata-rule-parser'),
-    generateShaders = require('./lib/cellular-automata-glsl'),
+    generateShaders2D = require('./lib/cellular-automata-glsl-2d'),
+    generateShaders3D = require('./lib/cellular-automata-glsl-3d'),
     GpuBackend = require('./lib/cellular-automata-gpu-backend'),
     moore = require('moore'),
     vonNeumann = require('von-neumann'),
@@ -48,6 +49,10 @@ var CellularAutomataGpu = function CellularAutomataGpu (shape, defaultValue) {
     this.shape = shape;
     this.dimension = shape.length;
 
+    if (this.dimension !== 2 && this.dimension !== 3) {
+        throw new Error('CellularAutomataGpu does not support dimensions other than 2 and 3.');
+    }
+
     defaultValue = defaultValue || 0;
 
     this.array = utils.createArray(shape, defaultValue);
@@ -63,7 +68,7 @@ CellularAutomataGpu.prototype.currentRule = null;
 CellularAutomataGpu.prototype.rules = null;
 CellularAutomataGpu.prototype.backend = null;
 
-CellularAutomataGpu.prototype.outOfBoundValue = null;
+CellularAutomataGpu.prototype.outOfBoundValue = 0;
 CellularAutomataGpu.prototype.outOfBoundWrapping = false;
 
 /**
@@ -160,7 +165,11 @@ CellularAutomataGpu.prototype.iterate = function (iterationNumber) {
 
     if (this.currentRule.iteration === 0) {
         var neighbourhood = getNeighbourhood(this.currentRule.rule.neighbourhoodType, this.currentRule.rule.neighbourhoodRange, this.dimension);
-        this.currentRule.shaders = generateShaders(this.currentRule.rule, neighbourhood, this.shape, this.outOfBoundWrapping ? 'wrap' : this.outOfBoundValue);
+        if (this.dimension === 2) {
+            this.currentRule.shaders = generateShaders2D(this.currentRule.rule, neighbourhood, this.shape, this.backend.viewportWidth, this.backend.viewportHeight, this.outOfBoundWrapping ? 'wrap' : this.outOfBoundValue);
+        } else if (this.dimension === 3) {
+            this.currentRule.shaders = generateShaders3D(this.currentRule.rule, neighbourhood, this.shape, this.backend.viewportWidth, this.backend.viewportHeight, this.outOfBoundWrapping ? 'wrap' : this.outOfBoundValue);
+        }
         this.rules.push(this.currentRule);
     }
 
