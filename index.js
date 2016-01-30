@@ -141,6 +141,10 @@ CellularAutomataGpu.prototype.setOutOfBoundValue = function (outOfBoundValue) {
 CellularAutomataGpu.prototype.setRule = function (rule) {
     var parsedRule = parser(rule);
 
+    if (rule === 'debug') {
+        parsedRule = { ruleFormat: 'debug' };
+    }
+
     if (parsedRule === null) {
         throw new Error('The rulestring could not be parsed.');
     }

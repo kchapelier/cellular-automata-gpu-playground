@@ -9,7 +9,7 @@ var displayNDarray = function (array, shape) {
         for (y = 0; y < shape[1]; y++) {
             for (x = 0; x < shape[0]; x++) {
                 v = array.get(x,y);
-                string+= v ? '0' + v.toString(10) : '..';
+                string+= v ? (v < 10 ? '0' + v.toString(10) : v.toString(10)) : '..';
             }
 
             string+= '\n';
@@ -23,7 +23,7 @@ var displayNDarray = function (array, shape) {
             for (y = 0; y < shape[1]; y++) {
                 for (x = 0; x < shape[0]; x++) {
                     v = array.get(x, y, z);
-                    string += v ? '0' + v.toString(10) : '..';
+                    string += v ? (v < 10 ? '0' + v.toString(10) : v.toString(10)) : '..';
                 }
 
                 string += '\n';
@@ -35,10 +35,11 @@ var displayNDarray = function (array, shape) {
 
 
     console.log(string);
+    return string;
 };
 
 function test(shape, rule, iterations) {
-    console.log('----- Width ' + shape[0] + ' Height ' + shape[0] + ' Iterations ' + iterations + 'x Rule "' + rule + '" -----');
+    console.log('----- Width ' + shape[0] + ' Height ' + shape[1] + ' Depth ' + shape[2] + ' Iterations ' + iterations + 'x Rule "' + rule + '" -----');
 
 
 
@@ -65,6 +66,20 @@ function test(shape, rule, iterations) {
 
     console.log('CPU: ' + (cputime/1000).toPrecision(4) + 's');
 }
+
+/*
+test([25, 25, 25], 'E 2..8 / 7..12', 10);
+test([25, 25, 25], 'E 2..8 / 7..12', 50);
+test([25, 25, 25], 'E 2..8 / 7..12', 250);
+
+test([50, 50, 50], 'E 2..8 / 7..12', 10);
+test([50, 50, 50], 'E 2..8 / 7..12', 50);
+test([50, 50, 50], 'E 2..8 / 7..12', 250);
+
+test([100, 100, 100], 'E 2..8 / 7..12', 10);
+test([100, 100, 100], 'E 2..8 / 7..12', 50);
+test([100, 100, 100], 'E 2..8 / 7..12', 250);
+*/
 
 
 //test([100, 100], '23/3', 10);
@@ -121,12 +136,32 @@ cagpu.finalize();
 displayNDarray(cagpu.array, cagpu.shape);
 */
 
-var cagpu = new CellularAutomataGpu([5,4,3], 0);
-cagpu.array.set(3, 2, 1, 1);
+var strCpu,
+    strGpu;
 
-cagpu.apply('E  / 1..26 von-neumann', 1);
+var shape = [100,50,3],
+    rule = 'E  / 1..6 von-neumann',
+    iterations = 3,
+    outOfBoundValue = 0;
+
+var cagpu = new CellularAutomataCpu(shape, 0);
+cagpu.array.set(90, 40, 1, 1);
+
+cagpu.setOutOfBoundValue(outOfBoundValue);
+cagpu.apply(rule, iterations);
+
+strCpu = displayNDarray(cagpu.array, cagpu.shape);
+
+var cagpu = new CellularAutomataGpu(shape, 0);
+cagpu.array.set(90, 44, 1, 1);
+
+cagpu.setOutOfBoundValue(outOfBoundValue);
+cagpu.apply(rule, iterations);
+//cagpu.apply('debug');
 cagpu.finalize();
 
-displayNDarray(cagpu.array, cagpu.shape);
+strGpu = displayNDarray(cagpu.array, cagpu.shape);
+
+//console.log(strCpu === strGpu);
 
 module.exports = function() {};
